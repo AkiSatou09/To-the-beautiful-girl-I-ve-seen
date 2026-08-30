@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Ariana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFE6D6;
+    --paper-shade:#DED0B2;
+    --paper-deep:#C9B896;
+    --letter:#FBF7EC;
+    --navy:#22374F;
+    --navy-2:#1B2C40;
+    --red:#8C2E2E;
+    --gold:#A9793C;
+    --ink:#2B2620;
+    --ink-soft:#5B5346;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--navy-2);
+    color:var(--ink);
+    font-family:'Cormorant Garamond', serif;
+    overflow-x:hidden;
+  }
+
+  ::selection{background:var(--gold); color:var(--letter);}
+
+  /* ---------- shared bits ---------- */
+  .eyebrow{
+    font-family:'Special Elite', monospace;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    font-size:.65rem;
+    color:var(--paper-deep);
+  }
+
+  .scroll-cue{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    color:var(--paper);
+    opacity:.75;
+    font-family:'Special Elite', monospace;
+    font-size:.68rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+  }
+  .scroll-cue svg{width:16px;height:16px;animation:bob 1.8s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+
+  /* =========================================================
+     STAGE 1 — THE ENVELOPE
+  ========================================================= */
+  .stage-envelope{
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:28px;
+    padding:32px 20px 40px;
+    background:
+      radial-gradient(ellipse at 50% -10%, #2c4162 0%, transparent 55%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,.015) 0 2px, transparent 2px 26px),
+      var(--navy-2);
+    position:relative;
+  }
+
+  .env-scene{
+    perspective:1800px;
+    width:min(88vw, 400px);
+  }
+
+  .envelope{
+    position:relative;
+    width:100%;
+    aspect-ratio: 3 / 2.05;
+    transform-style:preserve-3d;
+  }
+
+  /* back panel visible once flap lifts */
+  .env-cavity{
+    position:absolute;
+    inset:0;
+    background:var(--navy);
+    border-radius:6px;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.45);
+  }
+
+  /* the paper card that will slide out */
+  .env-contents{
+    position:absolute;
+    left:8%;
+    right:8%;
+    bottom:6%;
+    top:14%;
+    background:var(--letter);
+    border-radius:3px;
+    box-shadow:0 4px 18px rgba(0,0,0,.35);
+    transform:translateY(14%);
+    transition:transform 1.1s cubic-bezier(.2,.8,.2,1) .35s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:10% 8%;
+  }
+  .env-contents p{
+    font-family:'Caveat', cursive;
+    font-size:1.35rem;
+    color:var(--ink-soft);
+    line-height:1.35;
+    margin:0;
+  }
+  .envelope.is-open .env-contents{ transform:translateY(-8%); }
+
+  /* pocket front — two seam triangles for that classic envelope diamond */
+  .env-pocket{
+    position:absolute;
+    inset:0;
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:0 18px 45px rgba(0,0,0,.5), 0 2px 0 rgba(255,255,255,.06) inset;
+    background:var(--paper);
+  }
+  .env-pocket::before,
+  .env-pocket::after{
+    content:"";
+    position:absolute;
+    bottom:0;
+    width:56%;
+    height:78%;
+    background:linear-gradient(160deg, var(--paper) 0%, var(--paper-shade) 100%);
+  }
+  .env-pocket::before{
+    left:-6%;
+    clip-path:polygon(0% 100%, 100% 0%, 100% 100%);
+  }
+  .env-pocket::after{
+    right:-6%;
+    clip-path:polygon(0% 0%, 100% 100%, 0% 100%);
+  }
+
+  .env-address{
+    position:absolute;
+    left:12%;
+    bottom:14%;
+    text-align:left;
+    z-index:3;
+    pointer-events:none;
+  }
+  .env-address .to{
+    font-family:'Special Elite', monospace;
+    font-size:.6rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:block;
+    margin-bottom:4px;
+  }
+  .env-address .name{
+    font-family:'Caveat', cursive;
+    font-size:1.9rem;
+    color:var(--navy);
+    line-height:1;
+  }
+
+  .env-stamp{
+    position:absolute;
+    top:9%;
+    right:8%;
+    width:19%;
+    aspect-ratio:.82;
+    background:
+      repeating-linear-gradient(45deg, transparent 0 3px, rgba(140,46,46,.16) 3px 6px),
+      var(--letter);
+    border:2px dotted var(--red);
+    border-radius:2px;
+    z-index:3;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .env-stamp svg{width:58%;height:58%;color:var(--red);opacity:.85;}
+
+  .env-postmark{
+    position:absolute;
+    top:13%;
+    right:24%;
+    width:15%;
+    z-index:4;
+    opacity:.55;
+    color:var(--navy);
+    transform:rotate(-14deg);
+    pointer-events:none;
+  }
+  .env-postmark svg{width:100%;height:100%;}
+
+  /* the flap that opens */
+  .env-flap{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:66%;
+    clip-path:polygon(0 0, 100% 0, 50% 100%);
+    background:linear-gradient(200deg, var(--paper) 0%, var(--paper-shade) 65%, var(--paper-deep) 100%);
+    transform-origin:top center;
+    transform-style:preserve-3d;
+    transition:transform 1s cubic-bezier(.4,0,.2,1);
+    z-index:5;
+    box-shadow:0 1px 0 rgba(0,0,0,.08) inset;
+  }
+  .envelope.is-open .env-flap{
+    transform:rotateX(-172deg);
+  }
+
+  /* wax seal, sitting at the flap's tip */
+  .seal-btn{
+    position:absolute;
+    left:50%;
+    top:57%;
+    width:17%;
+    aspect-ratio:1;
+    transform:translate(-50%,-50%);
+    z-index:6;
+    border:none;
+    background:none;
+    padding:0;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .seal-half{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background:radial-gradient(circle at 34% 30%, #c3874a 0%, var(--gold) 42%, #7c5628 100%);
+    box-shadow:0 3px 8px rgba(0,0,0,.4);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform .6s cubic-bezier(.4,0,.2,1), opacity .6s ease;
+    overflow:hidden;
+  }
+  .seal-half svg{width:52%;height:52%;color:rgba(0,0,0,.28);}
+  .seal-half.left{ clip-path:polygon(0 0,50% 0,50% 100%,0 100%); }
+  .seal-half.right{ clip-path:polygon(50% 0,100% 0,100% 100%,50% 100%); }
+  .envelope.is-open .seal-half.left{ transform:translate(-130%,10%) rotate(-18deg); opacity:0; }
+  .envelope.is-open .seal-half.right{ transform:translate(130%,10%) rotate(18deg); opacity:0; }
+
+  .open-hint{
+    font-family:'Special Elite', monospace;
+    font-size:.68rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--paper-deep);
+    text-align:center;
+    opacity:.85;
+  }
+  .envelope-wrap.is-open .open-hint{ opacity:0; transition:opacity .4s ease; }
+
+  /* =========================================================
+     STAGE 2 — PHOTOGRAPHS
+  ========================================================= */
+  .stage-photos{
+    background:
+      radial-gradient(ellipse at 50% 0%, #33507a 0%, transparent 60%),
+      var(--navy-2);
+    padding:70px 20px 90px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:36px;
+  }
+
+  .photos-heading{
+    text-align:center;
+    color:var(--paper);
+  }
+  .photos-heading .eyebrow{margin-bottom:10px;}
+  .photos-heading h2{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:clamp(2rem, 6vw, 2.6rem);
+    margin:0;
+    color:var(--letter);
+  }
+
+  .photo-grid{
+    width:100%;
+    max-width:920px;
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:26px 18px;
+  }
+  @media (min-width:640px){
+    .photo-grid{grid-template-columns:repeat(3, minmax(0,1fr));}
+  }
+
+  .polaroid{
+    background:var(--letter);
+    padding:10px 10px 34px;
+    border-radius:2px;
+    box-shadow:0 10px 24px rgba(0,0,0,.4);
+    position:relative;
+    opacity:0;
+    transform:translateY(24px) rotate(var(--r,0deg));
+    transition:opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1);
+  }
+  .polaroid.in-view{
+    opacity:1;
+    transform:translateY(0) rotate(var(--r,0deg));
+  }
+  .polaroid:nth-child(1){--r:-4deg;}
+  .polaroid:nth-child(2){--r:3deg;}
+  .polaroid:nth-child(3){--r:-2deg;}
+  .polaroid:nth-child(4){--r:4deg;}
+  .polaroid:nth-child(5){--r:-3deg;}
+  .polaroid:nth-child(6){--r:2deg;}
+
+  .polaroid .frame{
+    aspect-ratio:1/1;
+    background:
+      repeating-linear-gradient(45deg, #d7cdb6 0 8px, #cabfa4 8px 16px),
+      #d7cdb6;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .polaroid img{width:100%;height:100%;object-fit:cover;display:block;}
+  .polaroid .fallback-label{
+    font-family:'Special Elite', monospace;
+    font-size:.7rem;
+    color:#8a7e63;
+    letter-spacing:.05em;
+  }
+  .polaroid .mark{
+    position:absolute;
+    bottom:8px;
+    left:0; right:0;
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-size:1rem;
+    color:var(--ink-soft);
+  }
+  .polaroid::after{
+    content:"";
+    position:absolute;
+    top:-10px;
+    left:50%;
+    width:34px;
+    height:14px;
+    transform:translateX(-50%) rotate(-2deg);
+    background:rgba(233,225,201,.75);
+    box-shadow:0 1px 2px rgba(0,0,0,.15);
+  }
+
+  /* =========================================================
+     STAGE 3 — THE LETTER / POEM
+  ========================================================= */
+  .stage-letter{
+    background:var(--navy-2);
+    padding:60px 16px 120px;
+    display:flex;
+    justify-content:center;
+  }
+
+  .letter-sheet{
+    width:100%;
+    max-width:640px;
+    background:var(--letter);
+    background-image:
+      linear-gradient(var(--letter), var(--letter)),
+      repeating-linear-gradient(transparent 0, transparent 37px, rgba(34,55,79,.08) 38px);
+    padding:52px 34px 60px;
+    position:relative;
+    box-shadow:0 30px 60px rgba(0,0,0,.45);
+    border-radius:2px;
+  }
+  .letter-sheet::before,
+  .letter-sheet::after{
+    content:"";
+    position:absolute;
+    left:14px; right:14px;
+    height:1px;
+    background:repeating-linear-gradient(90deg, rgba(34,55,79,.35) 0 6px, transparent 6px 12px);
+  }
+  .letter-sheet::before{ top:33%; }
+  .letter-sheet::after{ top:66%; }
+
+  .letter-head{
+    text-align:center;
+    margin-bottom:34px;
+  }
+  .letter-head .eyebrow{color:var(--ink-soft); margin-bottom:10px;}
+  .letter-head h1{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:clamp(2.2rem, 7vw, 3rem);
+    color:var(--navy);
+    margin:0;
+  }
+  .letter-head .rule{
+    width:60px;
+    height:2px;
+    background:var(--gold);
+    margin:16px auto 0;
+    opacity:.7;
+  }
+
+  .stanza{
+    font-size:clamp(.95rem, 2.2vw, 1.1rem);
+    line-height:1.7;
+    color:var(--ink);
+    margin:0 0 30px;
+    font-style:italic;
+    font-weight:500;
+  }
+  .stanza:first-of-type::first-letter{
+    font-family:'Caveat', cursive;
+    font-style:normal;
+    font-size:2.6em;
+    color:var(--red);
+    float:left;
+    line-height:.8;
+    padding-right:8px;
+    padding-top:4px;
+  }
+
+  .letter-sign{
+    margin-top:44px;
+    text-align:right;
+  }
+  .letter-sign p{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+    font-size:1.05rem;
+  }
+  .letter-sign .name{
+    font-family:'Caveat', cursive;
+    font-size:2rem;
+    color:var(--navy);
+  }
+
+  .letter-seal{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    background:radial-gradient(circle at 34% 30%, #c3874a 0%, var(--gold) 42%, #7c5628 100%);
+    margin:36px auto 0;
+    box-shadow:0 3px 8px rgba(0,0,0,.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .letter-seal svg{width:52%;height:52%;color:rgba(0,0,0,.3);}
+
+  footer{
+    text-align:center;
+    padding:26px 20px 40px;
+    background:var(--navy-2);
+    color:var(--paper-deep);
+    font-family:'Special Elite', monospace;
+    font-size:.62rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition-duration:.001ms !important; animation-duration:.001ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ STAGE 1: ENVELOPE ============ -->
+<section class="stage-envelope" id="envelope-section">
+  <span class="eyebrow">Please Deliver To</span>
+
+  <div class="env-scene">
+    <div class="envelope" id="envelope">
+      <div class="env-cavity"></div>
+
+      <div class="env-contents">
+        <p>i wrote something<br>for you, ariana</p>
+      </div>
+
+      <div class="env-pocket">
+        <div class="env-address">
+          <span class="to">For</span>
+          <span class="name">Ariana</span>
+        </div>
+
+        <div class="env-stamp" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M12 20s-7.5-4.7-7.5-10.6C4.5 6 6.9 4 9.3 4c1.4 0 2.7.7 3.7 2 1-1.3 2.3-2 3.7-2 2.4 0 4.3 2 4.3 5.4C21 15.3 12 20 12 20z"/>
+          </svg>
+        </div>
+        <div class="env-postmark" aria-hidden="true">
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="50" cy="50" r="34"/>
+            <circle cx="50" cy="50" r="26"/>
+            <line x1="4" y1="60" x2="96" y2="40"/>
+            <line x1="4" y1="70" x2="96" y2="50"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="env-flap" id="env-flap"></div>
+
+      <button class="seal-btn" id="seal-btn" aria-label="Open the envelope">
+        <span class="seal-half left"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.2-9.4-8.6C.6 8.9 2.3 5 6 5c2 0 3.6 1.1 4.8 2.7C12 6.1 13.6 5 15.6 5c1.4 0 2.7.6 3.6 1.6L12 21z"/></svg></span>
+        <span class="seal-half right"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s6.7-4.2 9.4-8.6C23.4 8.9 21.7 5 18 5c-2 0-3.6 1.1-4.8 2.7C12 6.1 10.4 5 8.4 5c-1.4 0-2.7.6-3.6 1.6L12 21z"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <p class="open-hint" id="open-hint">tap the seal to open it</p>
+</section>
+
+<!-- ============ STAGE 2: PHOTOGRAPHS ============ -->
+<section class="stage-photos" id="photos-section">
+  <div class="photos-heading">
+    <span class="eyebrow">what's inside</span>
+    <h2>a few of my favorites of us</h2>
+  </div>
+
+  <div class="photo-grid" id="photo-grid">
+    <!-- polaroids injected by JS for us1.jpg – us6.jpg -->
+  </div>
+
+  <div class="scroll-cue">
+    <span>keep going</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16M6 14l6 6 6-6"/></svg>
+  </div>
+</section>
+
+<!-- ============ STAGE 3: THE POEM ============ -->
+<section class="stage-letter" id="letter-section">
+  <div class="letter-sheet">
+    
+    <p class="stanza">The time we spend together just sitting still<br>
+    Talking soft or saying nothing much at all<br>
+    Goes by so fast it almost hurts to feel<br>
+    I hope those quiet hours never have to fall.</p>
+
+    <p class="stanza">Just being next to her is all I need<br>
+    No plans, no rush, just us in the same space<br>
+    Those simple moments feel like everything<br>
+    I want them to stay in this same soft place.</p>
+
+    <p class="stanza">I hope I get to see her every single day<br>
+    Because every time she crosses my mind<br>
+    The longing rises up and overflows<br>
+    It fills me till there's nothing else to find.</p>
+
+    <p class="stanza">I miss her when the hours pull us apart<br>
+    This is the only time I truly feel whole<br>
+    She's the reason I'm happier than before<br>
+    She helped me finally know my own soul.</p>
+
+    <p class="stanza">The time I spend with her is the calmest me<br>
+    I feel so still and quiet by her side<br>
+    I know I'm not the man she prays for at night<br>
+    But I'm the one that came, and I'll stay and stay on her side.</p>
+
+    <p class="stanza">I want to love her deep enough and true<br>
+    That the thought of me leaving never stays<br>
+    I want her heart to feel safe when I'm near<br>
+    Safe enough to stay through all our days.</p>
+
+    <p class="stanza">So I'll keep choosing her in every quiet hour<br>
+    Sitting close, talking soft, or saying nothing at all<br>
+    Loving her so fully she never has to wonder<br>
+    If this feeling between us could ever fall.</p>
+
+    <div class="letter-sign">
+      <span class="name">always</span>
+    </div>
+
+    <div class="letter-seal" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-8-5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-8 11-8 11z"/></svg>
+    </div>
+  </div>
+</section>
+
+<footer>no return address needed — this one's meant to stay</footer>
+
+<script>
+  // Build polaroids for us1.jpg through us6.jpg
+  const grid = document.getElementById('photo-grid');
+  for(let i=1;i<=6;i++){
+    const card = document.createElement('div');
+    card.className = 'polaroid';
+    card.innerHTML = `
+      <div class="frame">
+        <img src="us${i}.jpg" alt="A photo of us, ${i}" loading="lazy"
+             onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=&quot;fallback-label&quot;>us${i}.jpg</span>';">
+      </div>
+      <div class="mark">#${i}</div>
+    `;
+    grid.appendChild(card);
+  }
+
+  // Reveal polaroids as they scroll into view
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in-view'); }
+    });
+  }, {threshold:.2});
+  document.querySelectorAll('.polaroid').forEach(p=>io.observe(p));
+
+  // Envelope open interaction
+  const envelope = document.getElementById('envelope');
+  const wrap = document.querySelector('.env-scene');
+  const sealBtn = document.getElementById('seal-btn');
+  const hint = document.getElementById('open-hint');
+  let opened = false;
+
+  function openEnvelope(){
+    if(opened) return;
+    opened = true;
+    envelope.classList.add('is-open');
+    hint.style.opacity = '0';
+    sealBtn.setAttribute('aria-disabled','true');
+    sealBtn.style.pointerEvents = 'none';
+    setTimeout(()=>{
+      document.getElementById('photos-section').scrollIntoView({behavior:'smooth'});
+    }, 1300);
+  }
+
+  sealBtn.addEventListener('click', openEnvelope);
+  sealBtn.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openEnvelope(); }
+  });
+</script>
+</body>
+  </html>
+  
